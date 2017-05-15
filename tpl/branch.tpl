@@ -37,39 +37,7 @@
                     Поля или TV <br/>
                      <select id="selfil" name="fields[]" multiple="multiple">
                         <optgroup label="Стандартные поля">
-                            <option value="pagetitle">pagetitle</option>
-                            <option value="longtitle">longtitle</option>
-                            <option value="description">description</option>
-                            <option value="alias">alias</option>
-                            <option value="published">published</option>
-                            <option value="pub_date">pub_date</option>
-                            <option value="unpub_date">unpub_date</option>
-                            <option value="parent">parent</option>
-                            <option value="isfolder">isfolder</option>
-                            <option value="introtext">introtext</option>
-                            <option value="content">content</option>
-                            <option value="richtext">richtext</option>
-                            <option value="template">template</option>
-                            <option value="menuindex">menuindex</option>
-                            <option value="searchable">searchable</option>
-                            <option value="cacheable">cacheable</option>
-                            <option value="createdby">createdby</option>
-                            <option value="createdon">createdon</option>
-                            <option value="editedby">editedby</option>
-                            <option value="editedon">editedon</option>
-                            <option value="deleted">deleted</option>
-                            <option value="deletedon">deletedon</option>
-                            <option value="deletedby">deletedby</option>
-                            <option value="publishedon">publishedon</option>
-                            <option value="publishedby">publishedby</option>
-                            <option value="menutitle">menutitle</option>
-                            <option value="donthit">donthit</option>
-                            <option value="haskeywords">haskeywords</option>
-                            <option value="hasmetatags">hasmetatags</option>
-                            <option value="privateweb">privateweb</option>
-                            <option value="privatemgr">privatemgr</option>
-                            <option value="content_dispo">content_dispo</option>
-                            <option value="hidemenu">hidemenu</option>
+                            [+fields+]
                         </optgroup>
 
                         <optgroup label="TV - параметры">

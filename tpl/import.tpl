@@ -95,6 +95,9 @@
                 TV для проверки наличия в базе<br/>
                 <select id="checktv" name="checktv">
                     <option value="0" selected="selected">без проверки</option>
+                    <optgroup label="Основные поля">
+                        [+fields+]
+                    </optgroup>
                     <optgroup label="TV - параметры">
                         [+tvs+]
                     </optgroup>
