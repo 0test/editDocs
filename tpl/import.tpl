@@ -13,9 +13,11 @@
                 dictDefaultMessage: "Перетащите сюда нужный EXCEL-файл или выберите по клику",
                 init: function() {
                     this.on("success", function(file, responseText) {
-                        console.log(responseText);
+                        //console.log(responseText);
                         //excelTable(responseText);
-                        $('#result').html(responseText);
+                        responseText = responseText.split("|");
+                        $('#result_progress').html('<b>' + responseText[1] + '</b>');
+                        $('#result').html(responseText[2]);
                         $('.sending').show(0);
                     });
                 }
@@ -24,11 +26,12 @@
 
 
             $('body').on('click', '#process', function () {
-
-
                 $("#hidf").val($('.tabres tr:nth-child(1) td:nth-child(1)').html());
                 var dada = $('form#pro').serialize();
+                makeProgress(dada)
+            }); //end click
 
+            function makeProgress(dada) {
                 loading();
                 console.log(dada);
                 $.ajax({
@@ -36,14 +39,17 @@
                     url: "/assets/modules/editdocs/ajax.php",
                     data: dada,
                     success: function (result) {
-
-                        $('#result').html(result);
-
-
+                        resp = result.split("|");
+                        $('#result').html(resp[2]);
+                        if (parseInt(resp[0], 10) < parseInt(resp[1], 10)) {
+                            $("#result_progress").html("<b>Импорт: " + resp[0] + " из " + resp[1] + "</b>");
+                            makeProgress(dada);
+                        } else {
+                            $("#result_progress").html("<b>Импорт: " + resp[0] + " из " + resp[1] + "</b>");
+                        }
                     }
-
                 }); //end ajax
-            }); //end click
+            }
 
 
             $('body').on('click', '#clear', function () {
@@ -119,6 +125,7 @@
     </div>
 
     <br/><br/>
+    <div id="result_progress"></div>
     <div id="result"></div>
 
 </div>

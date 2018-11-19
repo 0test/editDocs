@@ -35,60 +35,47 @@ if ($_POST['clear']) {
     echo 'Кэш очищен';
 }
 
-
 if ($_POST['bigparent'] || $_POST['bigparent'] == '0') {
     echo $obj->getAllList();
 }
-
-
 if ($_POST['id']) {
-
     echo $obj->editDoc();
-
 }
-
 if ($_FILES['myfile']) {
-    //print_r($_FILES);
     echo $obj->uploadFile();
-
 }
 if ($_POST['upd']) {
-    //print_r($_FILES);
     echo $obj->updateExcel();
-
 }
 
 if ($_POST['imp']) {
-    //print_r($_FILES);
     echo $obj->importExcel();
-
 }
 
 
 if ($_POST['export']) {
     //print_r($_FILES);
     echo $obj -> export();
-
-
 }
 
 /////////////// CLASS ////////////
 
 class editDocs
 {
-
     public function __construct($modx)
     {
         include_once(MODX_BASE_PATH . "assets/lib/MODxAPI/modResource.php");
         $this->modx = $modx;
         $this->doc = new modResource($this->modx);
         $this->params['prevent_date'] = array('price', 'oldprice');
+        $this->step = 1000;//сколько строк за раз импортируем
+        $this->start_line = 2;//начинаем импорт со второй строки файла
         $this->params['max_rows'] = 20; //количество выводимых на экран строк после импорта / загрузки файла . false - если не нужно ограничивать
+        $this->snipPrepare = 'editDocsPrepare';//сниппет prepare - модификация данных при сохранении
     }
 
     public function editDoc()
     {
-
         $id = $_POST['id'];
         $data = $_POST['dat'];
         $pole = $_POST['pole'];
@@ -104,13 +91,10 @@ class editDocs
         }
     }
 
-
     public function getAllList()
     {
         $out = '';
         $parent = $this->modx->db->escape($_POST['bigparent']);
-
-        //return $this->parent;
 
         if ($_POST['fields']) {
             $fields = $this->modx->db->escape($_POST['fields']);
@@ -157,8 +141,6 @@ class editDocs
                 'showNoPublish' => $addw
             ));
 
-            //$this->paginate = $this->modx->getPlacholder('list.pages');
-
             $out = $tab . $out . $endtab;
 
         } else {
@@ -173,18 +155,8 @@ class editDocs
         $output_dir = MODX_BASE_PATH . "assets/modules/editdocs/uploads/";
 
         $ret = array();
-
-        //    This is for custom errors;
-        /*    $custom_error= array();
-            $custom_error['jquery-upload-file-error']="File already exists";
-            echo json_encode($custom_error);
-            die();
-        */
         $error = $_FILES["myfile"]["error"];
-        //You need to handle  both cases
-        //If Any browser does not support serializing of multiple files using FormData()
-        if (!is_array($_FILES["myfile"]["name"])) //single file
-        {
+        if (!is_array($_FILES["myfile"]["name"])) {//single file
             $fileName = $_FILES["myfile"]["name"];
             move_uploaded_file($_FILES["myfile"]["tmp_name"], $output_dir . $fileName);
             $ret[] = $fileName;
@@ -196,9 +168,12 @@ class editDocs
         //echo json_encode($this->ret);
         $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
         $_SESSION['data'] = $sheetData;
-        echo $this->table($sheetData, $this->params['max_rows']);
+        $_SESSION['import_start'] = $this->start_line;
+        $_SESSION['import_total'] = count($_SESSION['data']) + $_SESSION['import_start'] - 1;
+        $_SESSION['import_i'] = $_SESSION['import_j'] = 0;
+        echo $_SESSION['import_start'] . '|Всего строк - ' . ($_SESSION['import_total'] - $this->start_line) . '|' . $this->table($sheetData, $this->params['max_rows']);
     }
-
+/*
     public function updateExcel()
     {
 
@@ -243,7 +218,7 @@ class editDocs
         //print_r($this->check);
         return $log;
     }
-
+*/
     public function importExcel()
     {
         if (!$_POST['parimp']) {
@@ -256,7 +231,6 @@ class editDocs
         }
     }
 
-
     protected function importReady($data)
     {
         $log = '';
@@ -264,7 +238,13 @@ class editDocs
         $check = $this->checkField($uniq);
         $i = 0;//количество добавленных
         $j = 0;//количество отредактированных
-        foreach ($data as $k => $val) {
+        $start = isset($_SESSION['import_start']) ? $_SESSION['import_start'] : 0;
+        $finish = isset($_SESSION['import_start']) ? ($start + $this->step) : count($data);
+        $this->checkPrepareSnip();//проверяем, есть ли обработчик prepare (сниппет)
+        for ($ii = $start; $ii < $finish; $ii++){
+            if (!isset($data[$ii])) continue;
+            $val = $data[$ii];
+        //foreach ($data as $k => $val) {
             $inbase = 0;
             if (isset($val[$uniq])) {
                 $check[2] = $val[$uniq];
@@ -285,28 +265,39 @@ class editDocs
                     $create['parent'] = $this->modx->db->escape($_POST['parimp']);
                     if ($_POST['tpl']) $tpl = $this->modx->db->escape($_POST['tpl']);
                     if ($tpl != 'file') $create['template'] = $tpl;
+                    if ($this->issetPrepare) {
+                        $create = $this->makePrepare($create, 'new');
+                    }
                     $this->doc->create($create);
                     $new = $this->doc->save(true, false);
-                    //$log .= "Ресурс с id=" . $new . " добавлен -> [ok!]<br>";
                     $i++;
                 } else if ($inbase > 0) {
+                    if ($this->issetPrepare) {
+                        $create = $this->makePrepare($create, 'upd');
+                    }
                     $edit = $this->doc->edit($inbase)->fromArray($create)->save(true, false);
-                    //$log .= "Ресурс с id=" . $inbase . " отредактирован -> [ok!]<br>";
                     $j++;
                 } else {
                 //ошибка проверки
                 }
             } else { //тестовый режим
+                if ($this->issetPrepare) {
+                    $create = $this->makePrepare($create, 'upd');
+                }
                 foreach ($create as $key => $val) {
                     $log .= $key . ' - ' . $val . ' - Тестовый режим! <br>';
                     $log .= '<hr>';
                 }
+                return ($_SESSION['import_total'] - $this->start_line) . '|' . ($_SESSION['import_total'] - $this->start_line) . '|' . $log;
             }
         }
+        $_SESSION['import_i'] += $i;
+        $_SESSION['import_j'] += $j;
         if (!isset($_POST['test'])) {
-            $log .= '<br><b>Добавлено - ' . $i . ', отредактировано - ' . $j . ' -> [ok!]</b> <hr>';
+            $log .= '<br><b>Добавлено - ' . $_SESSION['import_i'] . ', отредактировано - ' . $_SESSION['import_j'] . ' -> [ok!]</b> <hr>';
         }
-        return $log;
+        $_SESSION['import_start'] = $start + $i + $j;
+        return ($_SESSION['import_start'] - $this->start_line) . '|' . ($_SESSION['import_total'] - $this->start_line) . '|' . $log;
     }
 
     protected function newMassif($data)
@@ -471,7 +462,6 @@ class editDocs
         foreach (glob(MODX_BASE_PATH . 'assets/modules/editdocs/uploads/*') as $file) {
             unlink($file);
         }
-
     }
 
     protected function checkArt($art)
@@ -480,6 +470,18 @@ class editDocs
         $this->res = $this->modx->db->query("SELECT contentid,value FROM " .$this->modx->getFullTableName('site_tmplvar_contentvalues')." WHERE  value = '".$this->art."'");
         $this->data = $this->modx->db->getRecordCount($this->res);
         return $this->data;
+    }
+
+    public function makePrepare($data, $mode = 'upd') 
+    {
+        $data = $this->modx->runSnippet($this->snipPrepare, array('data' => $data, 'mode' => $mode));
+        return $data;
+    }
+    
+    public function checkPrepareSnip()
+    {
+        $this->issetPrepare = $this->modx->db->getValue("SELECT id FROM " . $this->modx->getFullTableName("site_snippets") . " WHERE `name`='" . $this->modx->db->escape($this->snipPrepare) . "' LIMIT 0,1") ? $this->modx->db->escape($this->snipPrepare) : false;
+        return $this;
     }
 
 }
