@@ -454,7 +454,6 @@ class editDocs
                             $data[$v] = str_replace('.', ',', $data[$v]);
                         }
                     }
-					$this->modx->logEvent(1,1,$this->issetPrepare, 'prepareExport');
                     if ($this->issetPrepare) {
                         $data = $this->makePrepare($data, 'upd', 'export');
                     }
