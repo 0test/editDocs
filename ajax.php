@@ -490,9 +490,9 @@ class editDocs
         return $this->data;
     }
 
-    public function makePrepare($data, $mode = 'upd') 
+    public function makePrepare($data, $mode = 'upd', $process => 'import') 
     {
-        $data = $this->modx->runSnippet($this->snipPrepare, array('data' => $data, 'mode' => $mode));
+        $data = $this->modx->runSnippet($this->snipPrepare, array('data' => $data, 'mode' => $mode, 'process' => $process));
         return $data;
     }
     
