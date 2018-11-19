@@ -155,18 +155,36 @@ class editDocs
         $output_dir = MODX_BASE_PATH . "assets/modules/editdocs/uploads/";
 
         $ret = array();
+        $pathinfo = array();
         $error = $_FILES["myfile"]["error"];
         if (!is_array($_FILES["myfile"]["name"])) {//single file
             $fileName = $_FILES["myfile"]["name"];
             move_uploaded_file($_FILES["myfile"]["tmp_name"], $output_dir . $fileName);
             $ret[] = $fileName;
+            $pathinfo = pathinfo($output_dir . $fileName);
         }
-
-        include_once MODX_BASE_PATH . "assets/modules/editdocs/libs/PHPExcel/IOFactory.php";
-        $objPHPExcel = PHPExcel_IOFactory::load($output_dir . $fileName);
-
-        //echo json_encode($this->ret);
-        $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
+        if (isset($pathinfo['extension']) && $pathinfo['extension'] == 'csv') {
+            //загрузили csv
+            $tmp[] = array();
+            if (($handle = fopen($output_dir . $fileName, "r")) !== false) {
+                while (($tmp2 = fgetcsv($handle, 1000, ";")) !== false) {
+                    $row = array();
+                    foreach ($tmp2 as $k => $v) {
+                        $encoding = mb_detect_encoding($v);
+                        $v = iconv($encoding, "UTF-8", $v);
+                        $row[$k] = $v;
+                    }
+                    $tmp[] = $row;
+                }
+            }
+            unset($tmp[0]);
+            $sheetData = $tmp;
+        } else {
+            //загрузили xls/xlsx
+            include_once MODX_BASE_PATH . "assets/modules/editdocs/libs/PHPExcel/IOFactory.php";
+            $objPHPExcel = PHPExcel_IOFactory::load($output_dir . $fileName);
+            $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
+        }
         $_SESSION['data'] = $sheetData;
         $_SESSION['import_start'] = $this->start_line;
         $_SESSION['import_total'] = count($_SESSION['data']) + $_SESSION['import_start'] - 1;

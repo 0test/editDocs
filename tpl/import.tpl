@@ -9,8 +9,8 @@
             $("div#fileuploader").dropzone({
                 url: "/assets/modules/editdocs/ajax.php",
                 paramName: "myfile",
-                acceptedFiles: ".xls,.xlsx, .ods",
-                dictDefaultMessage: "Перетащите сюда нужный EXCEL-файл или выберите по клику",
+                acceptedFiles: ".xls, .xlsx, .ods, .csv",
+                dictDefaultMessage: "Перетащите сюда нужный EXCEL/CSV-файл или выберите по клику",
                 init: function() {
                     this.on("success", function(file, responseText) {
                         //console.log(responseText);
