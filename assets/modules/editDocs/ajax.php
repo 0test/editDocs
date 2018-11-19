@@ -412,6 +412,7 @@ class editDocs
         $depth = $this->modx->db->escape($_POST['depth']);
         $parent = $this->modx->db->escape($_POST['stparent']);
         $filename = MODX_BASE_PATH .'assets/modules/editdocs/uploads/export.csv';
+        $this->checkPrepareSnip();//проверяем, есть ли обработчик prepare (сниппет)
 
         if ($_POST['fieldz']) {
             $file = fopen($filename, 'w+');
@@ -453,6 +454,10 @@ class editDocs
                             $data[$v] = str_replace('.', ',', $data[$v]);
                         }
                     }
+					$this->modx->logEvent(1,1,$this->issetPrepare, 'prepareExport');
+                    if ($this->issetPrepare) {
+                        $data = $this->makePrepare($data, 'upd', 'export');
+                    }
                     return $data;
                 },
                 'showNoPublish' => $addw
@@ -490,7 +495,7 @@ class editDocs
         return $this->data;
     }
 
-    public function makePrepare($data, $mode = 'upd', $process => 'import') 
+    public function makePrepare($data, $mode = 'upd', $process = 'import') 
     {
         $data = $this->modx->runSnippet($this->snipPrepare, array('data' => $data, 'mode' => $mode, 'process' => $process));
         return $data;
