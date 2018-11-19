@@ -12,7 +12,6 @@
  * @internal    @installset base, sample
  */
  
- <?php
 $process = isset($process) ? $process : '';
 $mode = isset($mode) ? $mode : '';
 switch ($process) {
