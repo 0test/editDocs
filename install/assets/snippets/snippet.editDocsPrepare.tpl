@@ -21,9 +21,11 @@ switch ($process) {
         switch ($mode) {
             case 'upd':
                 //обновляем ресурс
+                //$data['pagetitle'] = 'import upd ' .  $data['pagetitle'];
                 break;
             case 'new':
                 //добавляем новый ресурс
+                //$data['pagetitle'] = 'import new ' .  $data['pagetitle'];
                 break;
             default:
                 break;
@@ -31,7 +33,7 @@ switch ($process) {
         break;
     case 'export':
         //обработчик экспорта
-        $data['pagetitle'] = 'export ' .  $data['pagetitle'];
+        //$data['pagetitle'] = 'export ' .  $data['pagetitle'];
         break;
     default:
         break;
