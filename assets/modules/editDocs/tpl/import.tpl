@@ -11,6 +11,10 @@
                 paramName: "myfile",
                 acceptedFiles: ".xls, .xlsx, .ods, .csv",
                 dictDefaultMessage: "Перетащите сюда нужный EXCEL/CSV-файл или выберите по клику",
+                maxFiles: 1,
+                dictMaxFilesExceeded: "Можно загрузить только один файл",
+                addRemoveLinks: true,
+                dictRemoveFile: "Удалить файл",
                 init: function() {
                     this.on("success", function(file, responseText) {
                         //console.log(responseText);
