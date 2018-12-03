@@ -13,5 +13,5 @@
  * @internal    @installset base, sample
  */
 
-include_once(MODX_BASE_PATH . 'assets/modules/editDocs/editDocs.module.php');
+include_once(MODX_BASE_PATH . 'assets/modules/editdocs/editdocs.module.php');
 
