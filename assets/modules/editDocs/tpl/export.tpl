@@ -1,6 +1,5 @@
 <div id="tab-page1" class="tab-page" style="display:block;">
     <form id="export-form">
-
         <input type="hidden" name="export" value="1" />
         <div>
             <div class="parf">
@@ -12,7 +11,6 @@
                 </div>
                 <div class="parf">
                     Уровень вложенности<br/>
-
                     <select id="ed-tree" name="depth">
                         <option value="0" selected="selected">1</option>
                         <option value="1">2</option>
@@ -61,11 +59,8 @@
 
     </form>
     <br/><br/>
+    <div id="result_progress"></div>
     <div id="result"></div>
-
-
-
-
 
     <script type="text/javascript" src="[+base_url+]assets/modules/editdocs/libs/sumoselect/jquery.sumoselect.min.js"></script>
     <script>
@@ -83,52 +78,39 @@
 
 
             $('body').on('click', '#brsub, .page', function () {
-
                 var data = $('form#export-form').serialize();
+                makeProgress(data);
+            }); //end click
 
+            function makeProgress(data) {
                 loading();
                 console.log(data);
-
                 $.ajax({
                     type: "POST",
                     url: "/assets/modules/editdocs/ajax.php",
                     data: data,
                     success: function (result) {
-
-                        //alert(result);
-
-                        //var result = JSON.parse (result);
-                        //console.log(result);
-                        if(result=='Success!') {
-                            $('#result').html(result);
+                        resp = result.split("|");
+                        if (parseInt(resp[0], 10) < parseInt(resp[1], 10)) {
+                            $("#result_progress").html("<b>Экспорт: " + resp[0] + " из " + resp[1] + "</b>");
+                            makeProgress(data);
+                        } else {
+                            $("#result_progress").html("<b>Экспорт: " + resp[0] + " из " + resp[1] + "</b>");
                             document.location.href="/assets/modules/editdocs/uploads/export.csv";
                         }
-                        else $('#result').html(result);
-
-
                     }
-
                 }); //end ajax
-            }); //end click
-
-
-
-
+            }
 
             $('body').on('click', '#clear', function () {
-
                 $.ajax({
                     type: "POST",
                     url: "/assets/modules/editdocs/ajax.php",
                     data: "clear=1",
                     success: function (result) {
-
                         $('#warning').html(result);
                         top.mainMenu.reloadtree();
-
-
                     }
-
                 }); //end ajax
             }); //end click
 
@@ -155,12 +137,9 @@
             });
         });
 
-
         function loading() {
             $('#result').html('<div class="loading">Загружаюсь...</div>');
         }
-
-
 
     </script>
 </div>

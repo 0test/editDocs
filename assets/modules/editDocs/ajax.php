@@ -68,7 +68,7 @@ class editDocs
         $this->modx = $modx;
         $this->doc = new modResource($this->modx);
         $this->params['prevent_date'] = array('price', 'oldprice');
-        $this->step = 1000;//сколько строк за раз импортируем
+        $this->step = 500;//сколько строк за раз импортируем
         $this->start_line = 2;//начинаем импорт со второй строки файла
         $this->params['max_rows'] = 20; //количество выводимых на экран строк после импорта / загрузки файла . false - если не нужно ограничивать
         $this->snipPrepare = 'editDocsPrepare';//сниппет prepare - модификация данных при сохранении
@@ -413,9 +413,28 @@ class editDocs
         $parent = $this->modx->db->escape($_POST['stparent']);
         $filename = MODX_BASE_PATH .'assets/modules/editdocs/uploads/export.csv';
         $this->checkPrepareSnip();//проверяем, есть ли обработчик prepare (сниппет)
+        if ($_POST['neopub']) $addw = 1; else $addw = '';
 
         if ($_POST['fieldz']) {
-            $file = fopen($filename, 'w+');
+            if (!isset($_SESSION['export_total'])) {
+                //только начинаем процесс
+                $json = $this->modx->runSnippet('DocLister', array(
+                'api' => 'id',
+                'JSONformat' => 'new',
+                'idType' => 'parents',
+                'depth' => $depth,
+                'parents' => $parent,
+                'makeUrl' => 0,
+                'showParent' => -1,
+                'showNoPublish' => $addw));
+                $total = json_decode($json, true)['total'];
+                $_SESSION['export_total'] = $total;
+                $_SESSION['export_start'] = 0;
+                if (file_exists($filename)) {
+                    unlink($filename);
+                }
+            }
+            $file = fopen($filename, 'a+');
 
             $fields = $this->modx->db->escape($_POST['fieldz']);
             array_unshift($fields, 'id');
@@ -429,8 +448,6 @@ class editDocs
             $ph = substr($ph, 0, strlen($ph) - 1);
             $head = substr($head, 0, strlen($head) - 1) . "\r\n";
             $this->last = array_pop($fields);
-            //to win1251
-            if ($_POST['neopub']) $addw = 1; else $addw = '';
             
             fputcsv($file, $header, ";");
 
@@ -441,13 +458,13 @@ class editDocs
                 'parents' => $parent,
                 'showParent' => -1,
                 'id' => 'list',
-                'display' => 'all',
+                'display' => $this->step,
+                'offset' => $_SESSION['export_start'],
                 'tvPrefix' => '',
                 'orderBy' => 'id ASC',
                 'tvList' => $tvlist,
                 'tpl' => '@CODE:' . $ph,
                 'prepare' =>  function($data, $modx){
-                    //$data[$this->last] = $data[$this->last] . "\r\n";
                     foreach ($this->params['prevent_date'] as $v) {
                         $v = trim($v);
                         if (isset($data[$v])) {
@@ -468,12 +485,16 @@ class editDocs
                     $import[] = ($_POST['win'] == 1) ? iconv('UTF-8', 'WINDOWS-1251', $string[$v]) : $string[$v];
                 }
                 fputcsv($file, $import, ";");
+                $_SESSION['export_start'] ++;
             }
             fclose($file);
         }
-        //$file = MODX_BASE_PATH .'assets/modules/editdocs/uploads/export.csv';
-        //file_put_contents($file, $head . $out);
-        if(file_exists($filename)) return 'Success!';
+        $out = $_SESSION['export_start'] . '|' . $_SESSION['export_total'];
+        if ($_SESSION['export_start'] >= $_SESSION['export_total']) {
+            unset($_SESSION['export_start']);
+            unset($_SESSION['export_total']);
+        }
+        if(file_exists($filename)) return $out;
         else return 'Файла не существует!';
 
     }
@@ -484,6 +505,8 @@ class editDocs
         foreach (glob(MODX_BASE_PATH . 'assets/modules/editdocs/uploads/*') as $file) {
             unlink($file);
         }
+        unset($_SESSION['export_start']);
+        unset($_SESSION['export_total']);
     }
 
     protected function checkArt($art)
