@@ -1,8 +1,6 @@
 <div id="tab-page1" class="tab-page" style="display:block;">
-
     <script>
-        $(document).ready(function()
-        {
+        $(document).ready(function() {
             $('#tpl,#checktv').SumoSelect();
 
             Dropzone.autoDiscover = false;
@@ -27,8 +25,6 @@
                 }
             });
 
-
-
             $('body').on('click', '#process', function () {
                 $("#hidf").val($('.tabres tr:nth-child(1) td:nth-child(1)').html());
                 var dada = $('form#pro').serialize();
@@ -49,15 +45,13 @@
                             $("#result_progress").html("<b>Импорт: " + resp[0] + " из " + resp[1] + "</b>");
                             makeProgress(dada);
                         } else {
-                            $("#result_progress").html("<b>Импорт: " + resp[0] + " из " + resp[1] + "</b>");
+                            $("#result_progress").html("<b>Импорт: " + resp[0] + " из " + resp[1] + ". Готово!</b>");
                         }
                     }
                 }); //end ajax
             }
 
-
             $('body').on('click', '#clear', function () {
-
                 $.ajax({
                     type: "POST",
                     url: "/assets/modules/editdocs/ajax.php",
@@ -72,17 +66,12 @@
 
                 }); //end ajax
             }); //end click
-
-
         });
 
         function loading() {
             $('#result').html('<div class="loading">Загружаюсь...</div>');
         }
-
     </script>
-
-
 
     <div id="fileuploader"  class="dropzone"></div>
     <br/><br/>

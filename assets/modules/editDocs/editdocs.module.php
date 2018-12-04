@@ -19,7 +19,7 @@ function str_in($str) {
 global $_lang;
 
 //Подключаем обработку шаблонов через DocLister
-include_once(MODX_BASE_PATH.'assets/snippets/DocLister/lib/DLTemplate.class.php');
+include_once(MODX_BASE_PATH . 'assets/snippets/DocLister/lib/DLTemplate.class.php');
 $dlt = DLTemplate::getInstance($modx);
 $dlt->setTemplatePath('assets/modules/editdocs/tpl/');
 $dlt->setTemplateExtension('tpl');

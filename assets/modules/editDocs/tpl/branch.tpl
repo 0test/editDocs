@@ -1,7 +1,5 @@
 <div id="tab-page1" class="tab-page" style="display:block;">
     <form id="branch">
-
-
         <div>
             <div class="parf">
                 <div class="parf">
@@ -66,14 +64,9 @@
     <br/><br/>
     <div id="result"></div>
 
-
-
-
-
     <script type="text/javascript" src="[+base_url+]assets/modules/editdocs/libs/sumoselect/jquery.sumoselect.min.js"></script>
     <script>
         $(document).ready(function () {
-
             <!--sumo select-->
             $('#selfil').SumoSelect({
                 placeholder: 'Выберите поля...',
@@ -84,42 +77,25 @@
             });
             $('#ed-tree').SumoSelect();
 
-
             $('body').on('click', '#brsub, .page', function () {
-
                 var data = $('form#branch').serialize();
                 var page = $(this).html();
                 loading();
                 console.log(data);
-
                 $.ajax({
                     type: "POST",
                     url: "/assets/modules/editdocs/ajax.php?list_page="+page,
                     data: data,
                     success: function (result) {
-
-                        //alert(result);
-
-                        //var result = JSON.parse (result);
-                        //console.log(result);
                         $('#result').html(result);
-
-
                     }
-
                 }); //end ajax
             }); //end click
 
-
             $('body').on('blur', '.row td input, .row td textarea', function () {
-
-                //var data2 = $('form#dataf').serialize();
                 var id = $(this).parent().parent().find('td.idd').html();
                 var pole= $(this).attr('name');
                 var dat = $(this).val();
-
-                //console.log(pole);
-
                 $.ajax({
                     type: "POST",
                     url: "/assets/modules/editdocs/ajax.php",
@@ -134,25 +110,17 @@
                 }); //end ajax
             }); //end blur
 
-
             $('body').on('click', '#clear', function () {
-
                 $.ajax({
                     type: "POST",
                     url: "/assets/modules/editdocs/ajax.php",
                     data: "clear=1",
                     success: function (result) {
-
                         $('#warning').html(result);
                         top.mainMenu.reloadtree();
-
-
                     }
-
                 }); //end ajax
             }); //end click
-
-
         }); //end ready
 
         //разрешаем только ввод цифр
@@ -165,8 +133,7 @@
                     // Разрешаем клавиши навигации: Home, End, Left, Right
                     (event.keyCode >= 35 && event.keyCode <= 39)) {
                     return;
-                }
-                else {
+                } else {
                     // Запрещаем всё, кроме клавиш цифр на основной клавиатуре, а также Num-клавиатуре
                     if ((event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105 )) {
                         event.preventDefault();
@@ -175,12 +142,8 @@
             });
         });
 
-
         function loading() {
             $('#result').html('<div class="loading">Загружаюсь...</div>');
         }
-
-
-
     </script>
 </div>

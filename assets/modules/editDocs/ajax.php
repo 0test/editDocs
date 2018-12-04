@@ -8,7 +8,6 @@ $modx->db->connect();
 if (empty ($modx->config)) {
     $modx->getSettings();
 }
-$modx->invokeEvent("OnWebPageInit");
 
 if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || (strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest')) {
     $modx->sendRedirect($modx->config['site_url']);
@@ -34,7 +33,6 @@ if ($_POST['clear']) {
     $obj->clearCache();
     echo 'Кэш очищен';
 }
-
 if ($_POST['bigparent'] || $_POST['bigparent'] == '0') {
     echo $obj->getAllList();
 }
@@ -51,8 +49,6 @@ if ($_POST['upd']) {
 if ($_POST['imp']) {
     echo $obj->importExcel();
 }
-
-
 if ($_POST['export']) {
     //print_r($_FILES);
     echo $obj -> export();
@@ -146,7 +142,6 @@ class editDocs
                 'TplDotsPage' => '@CODE:&nbsp;...&nbsp;',
                 'display' => $disp,
                 'tvPrefix' => '',
-                //'ownerTPL' => '@CHUNK: paginateEditDocs',
                 'ownerTPL' => '@CODE: [+dl.wrap+][+phx:if=`[+list.pages+]`:ne=``:then=`<tr><td colspan="100" align="center"><br/>[+list.pages+]<br/></td></tr>`+]',
                 'tvList' => $tvlist,
                 'tpl' => '@CODE:  <tr class="row"><td class="idd">[+id+]</td>' . $rowtd . '</tr>',
@@ -203,52 +198,7 @@ class editDocs
         $_SESSION['import_i'] = $_SESSION['import_j'] = 0;
         echo $_SESSION['import_start'] . '|Всего строк - ' . ($_SESSION['import_total'] - $this->start_line) . '|' . $this->table($sheetData, $this->params['max_rows']);
     }
-/*
-    public function updateExcel()
-    {
 
-        if ($_SESSION['data']) {
-            return $this->updateReady($this->newMassif($_SESSION['data'])) . $this->table($_SESSION['data'], $this->params['max_rows']);
-        } else return 'Сессия устарела, загрузите файл заново!';
-    }
-
-
-    public function updateReady($data)
-    {
-
-        $field = $this->modx->db->escape($_POST['field']);
-        $log = '';
-
-        foreach ($data as $k => $val) {
-            $i = 0;
-            foreach ($val as $key => $value) {
-
-                if ($key == $field) {
-                    $check = $this->checkField($field);
-                    array_push($check, $value);
-                    $id = $this->getID($check);
-                    //print_r($this->check);
-                    //echo $this->id;
-                }
-
-                if ($id > 0) {
-                    if (!isset($_POST['test'])) {
-                        $this->doc->edit($this->id);
-                        $this->doc->set($key, $value);
-                        $this->doc->save(true, false);
-                        $log .= 'id-' . $id . ';' . $key . '=>' . $value . '<br/>';
-                    } else $log .= 'id-' . $id . ';' . $key . '=>' . $value . ' - Тестовый режим! <br/>';
-                } elseif ($i < 1) $log .= 'Не найдено совпадений по значению - <b>' . $value . '</b>! <br/>';
-
-                $i++;
-            }
-            $log .= '<hr/>';
-
-        }
-        //print_r($this->check);
-        return $log;
-    }
-*/
     public function importExcel()
     {
         if (!$_POST['parimp']) {
@@ -476,8 +426,7 @@ class editDocs
                 'orderBy' => 'id ASC',
                 'tvList' => $tvlist,
                 'tpl' => '@CODE:' . $ph,
-                'prepare' =>  function($data, $modx){
-                    //$data[$this->last] = $data[$this->last] . "\r\n";
+                'prepare' =>  function($data, $modx) {
                     foreach ($this->params['prevent_date'] as $v) {
                         $v = trim($v);
                         if (isset($data[$v])) {
@@ -502,13 +451,11 @@ class editDocs
             }
             fclose($file);
         }
-        //$file = MODX_BASE_PATH .'assets/modules/editdocs/uploads/export.csv';
-        //file_put_contents($file, $head . $out);
-		$out = $_SESSION['export_start'] . '|' . $_SESSION['export_total'];
-		if ($_SESSION['export_start'] >= $_SESSION['export_total']) {
-			unset($_SESSION['export_start']);
-			unset($_SESSION['export_total']);
-		}
+        $out = $_SESSION['export_start'] . '|' . $_SESSION['export_total'];
+        if ($_SESSION['export_start'] >= $_SESSION['export_total']) {
+            unset($_SESSION['export_start']);
+            unset($_SESSION['export_total']);
+        }
         if(file_exists($filename)) return $out;
         else return 'Файла не существует!';
 
@@ -527,7 +474,7 @@ class editDocs
     protected function checkArt($art)
     {
         $this->art = $art;
-        $this->res = $this->modx->db->query("SELECT contentid,value FROM " .$this->modx->getFullTableName('site_tmplvar_contentvalues')." WHERE  value = '".$this->art."'");
+        $this->res = $this->modx->db->query("SELECT `contentid`,`value` FROM " . $this->modx->getFullTableName('site_tmplvar_contentvalues') . " WHERE `value` = '" . $this->art . "'");
         $this->data = $this->modx->db->getRecordCount($this->res);
         return $this->data;
     }
@@ -545,5 +492,3 @@ class editDocs
     }
 
 }
-
-?>

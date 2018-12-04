@@ -6,7 +6,6 @@
                 <div class="parf">
                     ID родителя<br/>
                     <input type="text" name="stparent" id="stparent" class="inp" style="width: 70px"/>
-
                     <br/><br/>
                 </div>
                 <div class="parf">
@@ -23,7 +22,6 @@
                         <option value="100">100</option>
                     </select>
                 </div>
-
                 <div class="parf">
                     <br/>
                     <input type="checkbox" name="win" value="1"/> кодировка WINDOWS-1251 (для редактирования в Excel)<br/>
@@ -47,16 +45,11 @@
                 </div>
                 <div class="subbat">
                     <button id="brsub" type="button" class="btn"> ПОЕХАЛИ</button>
-
                 </div>
-
                 <div class="clear"></div>
-
             </div>
             <div class="clear"></div>
-
         </div>
-
     </form>
     <br/><br/>
     <div id="result_progress"></div>
@@ -65,7 +58,6 @@
     <script type="text/javascript" src="[+base_url+]assets/modules/editdocs/libs/sumoselect/jquery.sumoselect.min.js"></script>
     <script>
         $(document).ready(function () {
-
             <!--sumo select-->
             $('#selfil').SumoSelect({
                 placeholder: 'Выберите поля...',
@@ -75,7 +67,6 @@
                 searchText: 'Имя поля или TV'
             });
             $('#ed-tree').SumoSelect();
-
 
             $('body').on('click', '#brsub, .page', function () {
                 var data = $('form#export-form').serialize();
@@ -95,7 +86,7 @@
                             $("#result_progress").html("<b>Экспорт: " + resp[0] + " из " + resp[1] + "</b>");
                             makeProgress(data);
                         } else {
-                            $("#result_progress").html("<b>Экспорт: " + resp[0] + " из " + resp[1] + "</b>");
+                            $("#result_progress").html("<b>Экспорт: " + resp[0] + " из " + resp[1] + ". Готово!</b>");
                             document.location.href="/assets/modules/editdocs/uploads/export.csv";
                         }
                     }
@@ -140,6 +131,5 @@
         function loading() {
             $('#result').html('<div class="loading">Загружаюсь...</div>');
         }
-
     </script>
 </div>
