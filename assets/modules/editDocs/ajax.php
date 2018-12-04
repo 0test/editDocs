@@ -109,11 +109,12 @@ class editDocs
             $depth = $this->modx->db->escape($_POST['tree']);
             $disp = isset($_POST['paginat']) ? 20 : 0;
             $addw = isset($_POST['neopub']) ? 1 : '';
+            $e = !empty($this->params['e']) ? array_map('trim', explode(',', $this->params['e'])) : array();
             foreach ($fields as $val) {
                 $r .= '[+' . $val . '+] - ';
                 $tvlist .= $val . ',';
                 $rowth .= '<td>' . $val . '</td>';
-                $rowtd .= '<td><input type="text" name="' . $val . '" value="[+' . $val . '+]"  /></td>';
+                $rowtd .= '<td><input type="text" name="' . $val . '" value="[+' . (in_array($val, $e) ? 'e.' : '') . $val . '+]"  /></td>';
             }
 
             $tvlist = substr($tvlist, 0, strlen($tvlist) - 1);
@@ -145,7 +146,8 @@ class editDocs
                 'ownerTPL' => '@CODE:[+dl.wrap+]<tr><td colspan="100" align="center"><br/>[+list.pages+]<br/></td></tr>',
                 'tvList' => $tvlist,
                 'tpl' => '@CODE:  <tr class="row"><td class="idd">[+id+]</td>' . $rowtd . '</tr>',
-                'showNoPublish' => $addw
+                'showNoPublish' => $addw,
+                'e' => implode(',', $e)
             ));
 
             $out = $tab . $out . $endtab;
