@@ -108,7 +108,7 @@ class editDocs
             $fields = $this->modx->db->escape($_POST['fields']);
             $depth = $this->modx->db->escape($_POST['tree']);
             $disp = isset($_POST['paginat']) ? 20 : 0;
-            $disp = isset($_POST['neopub']) ? 1 : '';
+            $addw = isset($_POST['neopub']) ? 1 : '';
             foreach ($fields as $val) {
                 $r .= '[+' . $val . '+] - ';
                 $tvlist .= $val . ',';
@@ -142,7 +142,7 @@ class editDocs
                 'TplDotsPage' => '@CODE:&nbsp;...&nbsp;',
                 'display' => $disp,
                 'tvPrefix' => '',
-                'ownerTPL' => '@CODE: [+dl.wrap+][+phx:if=`[+list.pages+]`:ne=``:then=`<tr><td colspan="100" align="center"><br/>[+list.pages+]<br/></td></tr>`+]',
+                'ownerTPL' => '@CODE:[+dl.wrap+]<tr><td colspan="100" align="center"><br/>[+list.pages+]<br/></td></tr>',
                 'tvList' => $tvlist,
                 'tpl' => '@CODE:  <tr class="row"><td class="idd">[+id+]</td>' . $rowtd . '</tr>',
                 'showNoPublish' => $addw
