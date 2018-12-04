@@ -64,14 +64,26 @@ class editDocs
 {
     public function __construct($modx)
     {
-        include_once(MODX_BASE_PATH . "assets/lib/MODxAPI/modResource.php");
         $this->modx = $modx;
-        $this->doc = new modResource($this->modx);
+        $this->params = $this->parseModuleParams('editDocs');
+        $apiClass = !empty($this->params['api']) && file_exists(MODX_BASE_PATH . "assets/lib/MODxAPI/" . $apiClass . ".php") ? $this->params['api'] : 'modResource';
+        include_once(MODX_BASE_PATH . "assets/lib/MODxAPI/" . $apiClass . ".php");
+        $this->doc = new $apiClass($this->modx);
         $this->params['prevent_date'] = array('price', 'oldprice');
-        $this->step = 500;//сколько строк за раз импортируем
+        $this->step = !empty($this->params['step']) && (int)$this->params['step'] > 0 ? (int)$this->params['step'] : 500;//сколько строк за раз импортируем
         $this->start_line = 2;//начинаем импорт со второй строки файла
         $this->params['max_rows'] = 20; //количество выводимых на экран строк после импорта / загрузки файла . false - если не нужно ограничивать
         $this->snipPrepare = 'editDocsPrepare';//сниппет prepare - модификация данных при сохранении
+    }
+
+    public function parseModuleParams($name)
+    {
+        $params = array();
+        $props = $this->modx->db->getValue("SELECT `properties` FROM " . $this->modx->getFullTableName("site_modules") . " WHERE `name` LIKE '%" . $name . "%' AND disabled=0 ORDER BY id DESC LIMIT 0,1");
+        if (!empty($props)) {
+            $params = $this->modx->parseProperties($props);
+        }
+        return $params;
     }
 
     public function editDoc()
@@ -465,6 +477,7 @@ class editDocs
                 'tvList' => $tvlist,
                 'tpl' => '@CODE:' . $ph,
                 'prepare' =>  function($data, $modx){
+                    //$data[$this->last] = $data[$this->last] . "\r\n";
                     foreach ($this->params['prevent_date'] as $v) {
                         $v = trim($v);
                         if (isset($data[$v])) {
@@ -489,11 +502,13 @@ class editDocs
             }
             fclose($file);
         }
-        $out = $_SESSION['export_start'] . '|' . $_SESSION['export_total'];
-        if ($_SESSION['export_start'] >= $_SESSION['export_total']) {
-            unset($_SESSION['export_start']);
-            unset($_SESSION['export_total']);
-        }
+        //$file = MODX_BASE_PATH .'assets/modules/editdocs/uploads/export.csv';
+        //file_put_contents($file, $head . $out);
+		$out = $_SESSION['export_start'] . '|' . $_SESSION['export_total'];
+		if ($_SESSION['export_start'] >= $_SESSION['export_total']) {
+			unset($_SESSION['export_start']);
+			unset($_SESSION['export_total']);
+		}
         if(file_exists($filename)) return $out;
         else return 'Файла не существует!';
 

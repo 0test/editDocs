@@ -16,6 +16,7 @@ function str_in($str) {
     }
     return implode(',', $tmp);
 }
+global $_lang;
 
 //Подключаем обработку шаблонов через DocLister
 include_once(MODX_BASE_PATH.'assets/snippets/DocLister/lib/DLTemplate.class.php');
@@ -23,17 +24,19 @@ $dlt = DLTemplate::getInstance($modx);
 $dlt->setTemplatePath('assets/modules/editdocs/tpl/');
 $dlt->setTemplateExtension('tpl');
 
-$moduleurl = 'index.php?a=112&id='.$_GET['id'].'&';
+$moduleurl = 'index.php?a=112&id=' . $_GET['id'] . '&';
 $action = isset($_GET['action']) ? $_GET['action'] : 'branch';
 
 //site_content fields
 $fields = '';
 if (isset($modx->event->params['include_fields']) && $modx->event->params['include_fields'] != '') {
-    $tmp = explode(',', $modx->event->params['include_fields']);
+    $tmp = array_map('trim', explode(',', $modx->event->params['include_fields']));
+    $field_names = array('longtitle' => 'long_title', 'content' => 'resource_content', 'published' => 'page_data_published', 'introtext' => 'resource_summary', 'alias' => 'resource_alias', 'template' => 'page_data_template', 'menutitle' => 'resource_opt_menu_title', 'menuindex' => 'resource_opt_menu_index');
     foreach ($tmp as $field) {
-		if ($field != 'id') {
-			$fields .= '<option value="' . trim($field) . '">' . trim($field) . '</option>';
-		}
+        if ($field != 'id') {
+            $field_name = isset($field_names[$field]) ? $field_names[$field] : $field;
+            $fields .= '<option value="' . $field . '">' . (isset($_lang[$field_name]) ? $_lang[$field_name] : $field_name) . '</option>';
+        }
     }
 }
 //tv-name list
