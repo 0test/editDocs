@@ -35,6 +35,7 @@
                     <select id="selfil" name="fieldz[]" multiple="multiple">
                         <optgroup label="Стандартные поля">
                             [+fields+]
+                            <option value="url">URL</option>
                         </optgroup>
 
                         <optgroup label="TV - параметры">

@@ -440,7 +440,8 @@ class editDocs
                     }
                     return $data;
                 },
-                'showNoPublish' => $addw
+                'showNoPublish' => $addw,
+                'urlScheme' => 'full'
             ));
             $DL = json_decode($DL, true);
             foreach ($DL as $string) {
