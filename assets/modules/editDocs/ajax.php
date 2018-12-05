@@ -179,8 +179,10 @@ class editDocs
                 while (($tmp2 = fgetcsv($handle, 1000, ";")) !== false) {
                     $row = array();
                     foreach ($tmp2 as $k => $v) {
-                        $encoding = mb_detect_encoding($v);
-                        $v = iconv($encoding, "UTF-8", $v);
+                        $encoding = mb_detect_encoding($v, array("Windows-1251", "UTF-8"));
+                        if ($encoding && $encoding != "UTF-8") {
+                            $v = iconv($encoding, "UTF-8", $v);
+                        }
                         $row[$k] = $v;
                     }
                     $tmp[] = $row;
