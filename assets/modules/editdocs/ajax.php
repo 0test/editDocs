@@ -62,7 +62,7 @@ class editDocs
     {
         $this->modx = $modx;
         $this->params = $this->parseModuleParams('editDocs');
-        $apiClass = !empty($this->params['api']) && file_exists(MODX_BASE_PATH . "assets/lib/MODxAPI/" . $apiClass . ".php") ? $this->params['api'] : 'modResource';
+        $apiClass = !empty($this->params['api']) && file_exists(MODX_BASE_PATH . "assets/lib/MODxAPI/" . trim($this->params['api']) . ".php") ? trim($this->params['api']) : 'modResource';
         include_once(MODX_BASE_PATH . "assets/lib/MODxAPI/" . $apiClass . ".php");
         $this->doc = new $apiClass($this->modx);
         $this->params['prevent_date'] = array('price', 'oldprice');
